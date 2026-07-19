@@ -1,0 +1,34 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Gatekeeper — Docker Compose
+# Phase: 6 — Containerization
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ┌─────────────────────────────────────────────────────────────────────────────┐
+# │  TASK: Define a docker-compose.yml with two services:                     │
+# │                                                                            │
+# │  SERVICE 1: redis                                                          │
+# │    - Image: redis:7-alpine                                                 │
+# │    - Port: 6379:6379                                                       │
+# │    - Volume: redis_data:/data  (persistence)                               │
+# │    - Healthcheck: redis-cli ping                                           │
+# │                                                                            │
+# │  SERVICE 2: gatekeeper                                                     │
+# │    - Build: . (current directory)                                          │
+# │    - Port: 8000:8000                                                       │
+# │    - Depends on: redis (healthy)                                           │
+# │    - Environment:                                                          │
+# │        REDIS_HOST=redis                                                    │
+# │        REDIS_PORT=6379                                                     │
+# │    - Restart: unless-stopped                                               │
+# │                                                                            │
+# │  BONUS — SERVICE 3: gatekeeper-2 (second instance for load test)          │
+# │    - Same as gatekeeper but port 8001:8000                                 │
+# │    - Proves rate limiting works across instances (shared Redis)            │
+# │                                                                            │
+# │  VOLUMES:                                                                  │
+# │    redis_data: (named volume)                                              │
+# │                                                                            │
+# │  RUN WITH: docker-compose up --build                                       │
+# └─────────────────────────────────────────────────────────────────────────────┘
+
+# YOUR DOCKER-COMPOSE YAML HERE
