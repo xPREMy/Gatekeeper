@@ -1,73 +1,18 @@
-"""
-===============================================================================
-MODULE 2: Pydantic Schemas (schemas.py)
-Difficulty: ★☆☆☆☆ (Easy)
-Phase: 1
-===============================================================================
-
-PROBLEM STATEMENT:
-    Define the request/response data shapes used throughout the API.
-    These are Pydantic models that FastAPI uses for automatic validation,
-    serialization, and OpenAPI docs.
-
-CONCEPTS:
-    - Pydantic BaseModel
-    - Field validation
-    - JSON-serializable response models
-===============================================================================
-"""
-
 from pydantic import BaseModel, Field
 from typing import Optional
 from enum import Enum
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TASK 1: Define RateLimitStatus enum
-# ─────────────────────────────────────────────────────────────────────────────
 class RateLimitStatus(str, Enum):
-    """
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │  TASK: Create an enum with two values:                                 │
-    │    - ALLOWED  = "allowed"                                              │
-    │    - DENIED   = "denied"                                               │
-    │                                                                        │
-    │  USAGE: Used in RateLimitResponse to indicate if request passed.       │
-    └─────────────────────────────────────────────────────────────────────────┘
-    """
-    pass  # YOUR CODE HERE
 
+    ALLOWED  = "allowed" 
+    DENIED   = "denied"  
 
-# ─────────────────────────────────────────────────────────────────────────────
-# TASK 2: Client rate-limit configuration model
-# ─────────────────────────────────────────────────────────────────────────────
 class ClientRateLimitConfig(BaseModel):
-    """
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │  TASK: Define a model for per-client rate-limit configuration.         │
-    │                                                                        │
-    │  FIELDS:                                                               │
-    │    client_id      : str   → The unique identifier for the client       │
-    │    max_requests   : int   → Max requests allowed per window            │
-    │                             (must be > 0, default 100)                 │
-    │    window_seconds : int   → Time window in seconds                     │
-    │                             (must be > 0, default 60)                  │
-    │                                                                        │
-    │  EXAMPLE:                                                              │
-    │    config = ClientRateLimitConfig(client_id="service-a",               │
-    │                                   max_requests=50,                     │
-    │                                   window_seconds=30)                   │
-    │    >>> config.client_id  →  "service-a"                                │
-    │                                                                        │
-    │  HINT: Use Field(..., gt=0) for positive-int validation.               │
-    └─────────────────────────────────────────────────────────────────────────┘
-    """
-    pass  # YOUR CODE HERE
 
+    client_id :str
+    max_requests : int = Field(gt=0)
+    window_seconds : int = Field(gt=0)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# TASK 3: Rate-limit check response model
-# ─────────────────────────────────────────────────────────────────────────────
 class RateLimitResponse(BaseModel):
     """
     ┌─────────────────────────────────────────────────────────────────────────┐
@@ -90,12 +35,12 @@ class RateLimitResponse(BaseModel):
     │     "remaining": 0, "limit": 100, "retry_after": 12.5}                │
     └─────────────────────────────────────────────────────────────────────────┘
     """
-    pass  # YOUR CODE HERE
+    status : RateLimitStatus
+    Client_id : str
+    remaining : int
+    limit : int 
+    retry_after : Optional[float] # None if allowed
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TASK 4: Health check response model
-# ─────────────────────────────────────────────────────────────────────────────
 class HealthResponse(BaseModel):
     """
     ┌─────────────────────────────────────────────────────────────────────────┐
@@ -110,12 +55,10 @@ class HealthResponse(BaseModel):
     │    {"status": "healthy", "redis_connected": true, "version": "1.0.0"}  │
     └─────────────────────────────────────────────────────────────────────────┘
     """
-    pass  # YOUR CODE HERE
+    status : str 
+    redis_connected : bool 
+    version : str 
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TASK 5: Generic gateway response model
-# ─────────────────────────────────────────────────────────────────────────────
 class GatewayResponse(BaseModel):
     """
     ┌─────────────────────────────────────────────────────────────────────────┐
@@ -130,4 +73,6 @@ class GatewayResponse(BaseModel):
     │    {"success": true, "message": "OK", "data": {"key": "value"}}        │
     └─────────────────────────────────────────────────────────────────────────┘
     """
-    pass  # YOUR CODE HERE
+    success : bool
+    message : str
+    data : Optional[dict]
