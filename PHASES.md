@@ -96,11 +96,11 @@ Redis needed yet.
 | 2 | Pydantic Schemas | `app/models/schemas.py` | ★☆☆☆☆ | 5 models: Enum, ClientConfig, RateLimitResponse, HealthResponse, GatewayResponse |
 
 ### ✅ Phase 1 Checklist
-- [ ] `Settings` class loads from env vars with defaults
-- [ ] `get_settings()` returns a cached singleton
-- [ ] All 5 schema models are defined with proper fields
-- [ ] You can instantiate each model in a Python REPL
-- [ ] Copy `.env.example` → `.env`
+- [.] `Settings` class loads from env vars with defaults
+- [.] `get_settings()` returns a cached singleton
+- [.] All 5 schema models are defined with proper fields
+- [.] You can instantiate each model in a Python REPL
+- [.] Copy `.env.example` → `.env`
 
 ### 🧪 Quick Verify
 ```python
