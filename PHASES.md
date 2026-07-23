@@ -134,14 +134,14 @@ multiple gateway instances check the same client's rate limit
 simultaneously.
 
 ### ✅ Phase 2 Checklist
-- [ ] `RedisClient` can connect to a local Redis (`docker run -p 6379:6379 redis:7-alpine`)
-- [ ] `is_healthy()` returns True when connected, False when not
-- [ ] Lua script handles first-time requests (bucket initialization)
-- [ ] Lua script correctly refills tokens based on elapsed time
-- [ ] Lua script caps tokens at max_tokens
-- [ ] `consume()` returns `(True, remaining)` when tokens available
-- [ ] `consume()` returns `(False, 0)` when bucket is empty
-- [ ] All `test_token_bucket.py` tests pass
+- [.] `RedisClient` can connect to a local Redis (`docker run -p 6379:6379 redis:7-alpine`)
+- [.] `is_healthy()` returns True when connected, False when not
+- [.] Lua script handles first-time requests (bucket initialization)
+- [.] Lua script correctly refills tokens based on elapsed time
+- [.] Lua script caps tokens at max_tokens
+- [.] `consume()` returns `(True, remaining)` when tokens available
+- [.] `consume()` returns `(False, 0)` when bucket is empty
+- [.] All `test_token_bucket.py` tests pass
 
 ### 🧪 Quick Verify
 ```python

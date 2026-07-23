@@ -1,25 +1,3 @@
-"""
-===============================================================================
-MODULE 5: Rate Limiter Service (rate_limiter.py)
-Difficulty: ★★★☆☆ (Medium)
-Phase: 3
-===============================================================================
-
-PROBLEM STATEMENT:
-    Build the service layer that sits between the API middleware and the
-    token bucket algorithm. It manages per-client configurations stored
-    in Redis and delegates rate-limit checks to TokenBucket.
-
-    Think of it as:
-        Middleware → RateLimiterService → TokenBucket → Redis
-
-CONCEPTS:
-    - Service layer pattern
-    - Per-client configuration storage in Redis (as JSON)
-    - Fallback to default limits
-===============================================================================
-"""
-
 import json
 from typing import Optional, Dict, List
 from app.core.token_bucket import TokenBucket
