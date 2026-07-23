@@ -45,4 +45,4 @@ class RedisClient:
         except Exception:
             return False
 
-redis_client = RedisClient()  
+redis_client = RedisClient() 
