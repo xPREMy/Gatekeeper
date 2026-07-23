@@ -13,7 +13,7 @@ class RedisClient:
         self._client : Optional[aioredis.Redis] =None
         self._pool : Optional[aioredis.ConnectionPool] =None
 
-    async def connect(self, host: str, port: int, db: int, password: Optional[str] = None) -> None:
+    async def connect(self) -> None:
 
         self._pool=aioredis.ConnectionPool.from_url(settings.REDIS_URL,max_connections=20,decode_responses=True)
         self._client = aioredis.Redis(connection_pool=self._pool)
@@ -25,8 +25,14 @@ class RedisClient:
 
     async def disconnect(self) -> None:
 
-        await self._client.close()
-        await self._pool.disconnect()
+        if self._client is not None:
+            await self._client.aclose()
+
+        if self._pool is not None:
+            await self._pool.disconnect()
+
+        self._client = None
+        self._pool = None
 
     def get_client(self) -> aioredis.Redis:
 
