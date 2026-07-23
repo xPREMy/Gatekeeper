@@ -39,8 +39,10 @@ class Settings(BaseSettings):
 
     DEFAULT_RATE_LIMIT : int =100
     DEFAULT_WINDOW_SECONDS : int = 60
+    Tokens_consume_per_request : int = 1
     SERVER_HOST : str
     SERVER_PORT : str
+    
     model_config=SettingsConfigDict(
         env_file=".env",
         extra="ignore"

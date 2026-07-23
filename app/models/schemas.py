@@ -38,7 +38,7 @@ class RateLimitResponse(BaseModel):
     status : RateLimitStatus
     Client_id : str
     remaining : int
-    limit : int 
+    limit : int
     retry_after : Optional[float] # None if allowed
 
 class HealthResponse(BaseModel):
