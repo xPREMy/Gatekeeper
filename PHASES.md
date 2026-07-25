@@ -163,12 +163,12 @@ management and the client identification utility.
 | 6 | Client Identifier | `app/utils/client_identifier.py` | ★★☆☆☆ | `extract_api_key()`, `extract_client_ip()`, `get_client_identifier()` |
 
 ### ✅ Phase 3 Checklist
-- [ ] Can store a client config in Redis and retrieve it
-- [ ] Unknown clients get default config from Settings
-- [ ] `check_rate_limit()` returns ALLOWED/DENIED correctly
+- [.] Can store a client config in Redis and retrieve it
+- [.] Unknown clients get default config from Settings
+- [.] `check_rate_limit()` returns ALLOWED/DENIED correctly
 - [ ] API key extraction from `X-API-Key` and `Authorization: Bearer` headers
 - [ ] IP extraction from `X-Forwarded-For`, `X-Real-IP`, and direct connection
-- [ ] All `test_rate_limiter.py` tests pass
+- [.] All `test_rate_limiter.py` tests pass
 
 ---
 
