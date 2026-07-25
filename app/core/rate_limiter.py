@@ -18,7 +18,7 @@ class RateLimiterService:
     async def set_client_config(self, config: ClientRateLimitConfig) -> None:
         key = f"{self._config_prefix}{config.client_id}"
         config_json = config.model_dump_json()
-        self.redis.set(key,config_json)
+        await self.redis.set(key,config_json)
 
     async def get_client_config(self, client_id: str) -> ClientRateLimitConfig:
         key= f"{self._config_prefix}{client_id}"

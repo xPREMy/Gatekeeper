@@ -16,9 +16,15 @@ settings = get_settings()
 @pytest.fixture
 def mock_token_bucket():
     bucket = MagicMock()
-    bucket.consume = AsyncMock(return_value = (True,99.0))
-    return bucket
+    bucket.consume = AsyncMock(return_value=(True, 99.0))
 
+    redis = MagicMock()
+    redis.get = AsyncMock(return_value=None)
+    redis.set = AsyncMock(return_value=True)
+    redis.delete = AsyncMock(return_value=1)
+    bucket.redis = redis
+    
+    return bucket
 @pytest_asyncio.fixture
 async def redis_client():
     redis_client = RedisClient()
