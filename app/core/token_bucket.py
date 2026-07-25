@@ -1,7 +1,6 @@
 import time
 from typing import Tuple
 import redis.asyncio as aioredis
-from .redis_client import redis_client
 
 # ─────────────────────────────────────────────────────────────────────────────
 # TASK 1: Write the Lua script
@@ -52,14 +51,14 @@ class TokenBucket:
     Distributed Token Bucket rate limiter backed by Redis + Lua.
     """
 
-    def __init__(self, redis_client: aioredis.Redis):
-        self._redis_client = redis_client
+    def __init__(self, redis: aioredis.Redis):
+        self.redis = redis
         self._script_sha =None
 
     async def _load_script(self) -> str:
         if self._script_sha is not None :
             return self._script_sha
-        self._script_sha = await self._redis_client.script_load(TOKEN_BUCKET_LUA_SCRIPT)
+        self._script_sha = await self.redis.script_load(TOKEN_BUCKET_LUA_SCRIPT)
         return self._script_sha
 
     async def consume(
@@ -74,7 +73,7 @@ class TokenBucket:
         current_time = time.time()
         redis_key = f"RateLimit:{client_id}"
         sha= await self._load_script()
-        result = await self._redis_client.evalsha(sha,1,redis_key,max_tokens,refill_rate,current_time,tokens_to_consume)
+        result = await self.redis.evalsha(sha,1,redis_key,max_tokens,refill_rate,current_time,tokens_to_consume)
 
         allowed = bool(int(result[0]))
         remaining_tokens = float(result[1])

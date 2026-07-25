@@ -1,7 +1,6 @@
 import json
 from typing import Optional, Dict, List
 from app.core.token_bucket import TokenBucket
-from app.core.redis_client import redis_client
 from app.models.schemas import ClientRateLimitConfig, RateLimitResponse, RateLimitStatus
 from app.config import get_settings
 
@@ -13,18 +12,17 @@ class RateLimiterService:
     def __init__(self, token_bucket: TokenBucket):
         self._bucket = token_bucket
         self._settings = get_settings()
-        self._config_prefix = "client_config:" 
+        self._config_prefix = "client_config:"
+        self.redis = token_bucket.redis
 
     async def set_client_config(self, config: ClientRateLimitConfig) -> None:
         key = f"{self._config_prefix}{config.client_id}"
         config_json = config.model_dump_json()
-        redis = redis_client.get_client()
-        redis.set(key,config_json)
+        self.redis.set(key,config_json)
 
     async def get_client_config(self, client_id: str) -> ClientRateLimitConfig:
         key= f"{self._config_prefix}{client_id}"
-        redis = redis_client.get_client()
-        config_json =await redis.get(key)
+        config_json =await self.redis.get(key)
         if config_json is None:
             return ClientRateLimitConfig(
                 client_id=client_id,
@@ -36,16 +34,14 @@ class RateLimiterService:
 
     async def delete_client_config(self, client_id: str) -> bool:
         key = f"{self._config_prefix}{client_id}"
-        redis= redis_client.get_client()
-        result = await redis.delete(key)
+        result = await self.redis.delete(key)
         return result>0
 
     async def list_client_configs(self) -> List[ClientRateLimitConfig]:
-        redis = redis_client.get_client()
         pattern= f"{self._config_prefix}*"
         client_list : List[ClientRateLimitConfig] = []
-        async for key in redis.scan_iter(match=pattern):
-            config_json = await redis.get(key)
+        async for key in self.redis.scan_iter(match=pattern):
+            config_json = await self.redis.get(key)
             if config_json is None:
                 continue
             config = ClientRateLimitConfig.model_validate_json(config_json)
