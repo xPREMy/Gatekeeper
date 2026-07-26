@@ -36,11 +36,12 @@ def create_app() -> FastAPI:
         RateLimitMiddleware,
         excluded_paths=["/docs","/health","/admin","/openapi.json"]
     )
-    app.include_router(admin)
-    app.include_router(gateway)
-    app.include_router(health)
+    app.include_router(admin.router)
+    app.include_router(gateway.router)
+    app.include_router(health.router)
+    return app
 
-app = None  # YOUR CODE HERE — replace with create_app()
+app = create_app()
 
 if __name__ == "__main__":
     settings = get_settings()

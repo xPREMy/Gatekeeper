@@ -16,7 +16,7 @@ class ClientRateLimitConfig(BaseModel):
 class RateLimitResponse(BaseModel):
 
     status : RateLimitStatus
-    Client_id : str
+    client_id : str
     remaining : int
     limit : int
     retry_after : Optional[float] # None if allowed

@@ -27,7 +27,7 @@ router = APIRouter(tags=["Health"])
 
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
-    redis_ok = redis_client.is_healthy()
+    redis_ok = await redis_client.is_healthy()
     settings = get_settings()
     if redis_ok :
         status = "healthy"

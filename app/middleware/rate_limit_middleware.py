@@ -13,15 +13,15 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     """
     def __init__(self, app, excluded_paths: List[str] = None):
         super().__init__(app)
-        self._rate_limiter : RateLimiterService = app.state.rate_limiter  # service object
         self._excluded_paths = excluded_paths
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        rate_limiter = request.app.state.rate_limiter 
         if request.url.path in self._excluded_paths:
             return await call_next(request)
 
         client_id = get_client_identifier(request=request)
-        result = await self._rate_limiter.check_rate_limit(client_id=client_id)
+        result = await rate_limiter.check_rate_limit(client_id=client_id)
 
         if result.status == RateLimitStatus.DENIED :
             return build_rate_limited_response(result)

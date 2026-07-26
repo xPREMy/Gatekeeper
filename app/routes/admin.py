@@ -38,10 +38,11 @@ async def get_client_config(client_id: str,rate_limiter_service : RateLimiterSer
 
 @router.delete("/clients/{client_id}", response_model=GatewayResponse , status_code=status.HTTP_200_OK)
 async def delete_client_config(client_id: str,rate_limiter_service : RateLimiterService = Depends(get_rate_limiter)):
-    deleted = rate_limiter_service.delete_client_config(client_id=client_id)
+    deleted = await rate_limiter_service.delete_client_config(client_id=client_id)
     if deleted is False:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="client-id is not configured")
     return GatewayResponse(
         success=True,
-        message=f"Config deleted successfully for client-id : {client_id}"
+        message=f"Config deleted successfully for client-id : {client_id}",
+        data=None
     )

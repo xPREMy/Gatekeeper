@@ -9,13 +9,18 @@ These tests use FastAPI's TestClient to test the full request flow:
 ===============================================================================
 """
 
+import pytest_asyncio
 import pytest
 from httpx import AsyncClient, ASGITransport
+from asgi_lifespan import LifespanManager
 from app.main import create_app
 
-@pytest.fixture
-def app():
-    return create_app()
+@pytest_asyncio.fixture
+async def app():
+    app = create_app()
+
+    async with LifespanManager(app):
+        yield app
 
 @pytest.mark.asyncio
 async def test_health_endpoint(app):
@@ -34,7 +39,7 @@ async def test_health_endpoint(app):
 async def test_rate_limited_endpoint_returns_headers(app):
     async with AsyncClient(
         transport=ASGITransport(app=app),
-        base_url="http://test_rate_limit"
+        base_url="http://test"
     ) as client :
         response = await client.get("/api/resource",headers={"X-API-Key": "test-client"})
 
@@ -47,7 +52,7 @@ async def test_rate_limited_endpoint_returns_headers(app):
 async def test_rate_limit_enforcement(app):
     async with AsyncClient(
         transport=ASGITransport(app=app),
-        base_url="http:test_rate_limit_enforcement"
+        base_url="http://test"
     ) as client:
         response_set = await client.post(
             "/admin/clients" , 
@@ -72,7 +77,7 @@ async def test_rate_limit_enforcement(app):
 async def test_admin_crud_operations(app):
     async with AsyncClient(
         transport=ASGITransport(app=app),
-        base_url="http:test_admin_CRUD"
+        base_url="http://test"
     ) as client :
         response_set = await client.post(
             "/admin/clients",

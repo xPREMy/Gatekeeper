@@ -58,7 +58,7 @@ class RateLimiterService:
         if allowed :
             return RateLimitResponse(
                 status=RateLimitStatus.ALLOWED,
-                Client_id=client_id,
+                client_id=client_id,
                 limit=limit,
                 remaining=int(remaining),
                 retry_after=None
@@ -68,7 +68,7 @@ class RateLimiterService:
             retry_after = (tokens_to_consume - remaining)/refill_rate
             return RateLimitResponse(
                 status=RateLimitStatus.DENIED,
-                Client_id=client_id,
+                client_id=client_id,
                 limit=limit,
                 remaining= 0,
                 retry_after=retry_after
