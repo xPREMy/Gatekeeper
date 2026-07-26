@@ -36,6 +36,9 @@ def create_app() -> FastAPI:
         RateLimitMiddleware,
         excluded_paths=["/docs","/health","/admin","/openapi.json"]
     )
+    app.include_router(admin)
+    app.include_router(gateway)
+    app.include_router(health)
 
 app = None  # YOUR CODE HERE — replace with create_app()
 
