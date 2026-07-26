@@ -13,80 +13,87 @@ import pytest
 from httpx import AsyncClient, ASGITransport
 from app.main import create_app
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# FIXTURES
-# ─────────────────────────────────────────────────────────────────────────────
-
 @pytest.fixture
 def app():
     return create_app()
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TEST CASES
-# ─────────────────────────────────────────────────────────────────────────────
-
 @pytest.mark.asyncio
 async def test_health_endpoint(app):
-    """
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │  TEST: GET /health should return 200 with health status.             │
-    │                                                                        │
-    │  STEPS:                                                                │
-    │    1. Create AsyncClient with ASGI transport                           │
-    │    2. GET /health                                                      │
-    │    3. Assert status_code == 200                                        │
-    │    4. Assert response JSON has "status" field                          │
-    └─────────────────────────────────────────────────────────────────────────┘
-    """
-    pass  # YOUR CODE HERE
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test"
+    ) as client :
+        response = await client.get("/health")
 
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] in ("healthy","unhealthy")
+    assert "redis_connected" in  body
 
 @pytest.mark.asyncio
 async def test_rate_limited_endpoint_returns_headers(app):
-    """
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │  TEST: Requests to /api/resource should include rate-limit headers.   │
-    │                                                                        │
-    │  STEPS:                                                                │
-    │    1. GET /api/resource with X-API-Key header                          │
-    │    2. Assert status_code == 200                                        │
-    │    3. Assert "X-RateLimit-Limit" in response headers                   │
-    │    4. Assert "X-RateLimit-Remaining" in response headers               │
-    └─────────────────────────────────────────────────────────────────────────┘
-    """
-    pass  # YOUR CODE HERE
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test_rate_limit"
+    ) as client :
+        response = await client.get("/api/resource",headers={"X-API-Key": "test-client"})
+
+    assert response.status_code == 200
+    assert "X-RateLimit-Limit" in response.headers
+    assert "X-RateLimit-Remaining" in response.headers
 
 
 @pytest.mark.asyncio
 async def test_rate_limit_enforcement(app):
-    """
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │  TEST: After exceeding rate limit, requests should return 429.        │
-    │                                                                        │
-    │  STEPS:                                                                │
-    │    1. Configure a very low limit for a test client (e.g., 3 requests) │
-    │    2. Send 3 requests → all should be 200                              │
-    │    3. Send 4th request → should be 429 with Retry-After header        │
-    │    4. Assert response body has "error": "Rate limit exceeded"         │
-    └─────────────────────────────────────────────────────────────────────────┘
-    """
-    pass  # YOUR CODE HERE
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http:test_rate_limit_enforcement"
+    ) as client:
+        response_set = await client.post(
+            "/admin/clients" , 
+            json={
+                "client_id": "test-client",
+                "max_requests": 3,
+                "window_seconds": 300
+            },
+        )
+        response1 = await client.get("/api/resource",headers={"X-API-Key": "test-client"})
+        response2 = await client.get("/api/resource",headers={"X-API-Key": "test-client"})
+        response3 = await client.get("/api/resource",headers={"X-API-Key": "test-client"})
+        response4 = await client.get("/api/resource",headers={"X-API-Key": "test-client"})
 
+    assert response1.status_code == 200
+    assert response2.status_code == 200
+    assert response3.status_code == 200
+    assert response4.status_code == 429
+    assert response4.json()["error"] == "Rate limit exceeded"
 
 @pytest.mark.asyncio
 async def test_admin_crud_operations(app):
-    """
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │  TEST: Admin endpoints should support full CRUD on client configs.    │
-    │                                                                        │
-    │  STEPS:                                                                │
-    │    1. POST /admin/clients → create config → assert 200                │
-    │    2. GET /admin/clients/client-id → verify created → assert 200     │
-    │    3. GET /admin/clients → list all → assert client appears           │
-    │    4. DELETE /admin/clients/client-id → assert 200                    │
-    │    5. DELETE again → assert 404                                        │
-    └─────────────────────────────────────────────────────────────────────────┘
-    """
-    pass  # YOUR CODE HERE
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http:test_admin_CRUD"
+    ) as client :
+        response_set = await client.post(
+            "/admin/clients",
+            json={
+                "client_id" : "test_client",
+                "max_requests" : 80,
+                "window_seconds" : 50
+            }
+        )
+        response_get = await client.get("/admin/clients/test_client")
+        response_get_all = await client.get("/admin/clients")
+        response_delete1 = await client.delete("/admin/clients/test_client")
+        response_delete2 = await client.delete("/admin/clients/test_client")
+
+    assert response_set.status_code == 200
+    assert response_set.json()["data"]["client_id"] == "test_client"
+
+    assert response_get.status_code == 200
+    assert response_get.json()["client_id"] == "test_client"
+    
+    assert response_get_all.status_code == 200
+    print(response_get_all.json())
+    assert response_delete1.status_code == 200
+    assert response_delete2.status_code == 404

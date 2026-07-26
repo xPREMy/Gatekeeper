@@ -6,7 +6,7 @@ from app.utils.dependancies import get_rate_limiter
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
-@router.post("/clients", response_model=GatewayResponse)
+@router.post("/clients", response_model=GatewayResponse , status_code=status.HTTP_200_OK)
 async def create_client_config(config: ClientRateLimitConfig, rate_limiter_service : RateLimiterService = Depends(get_rate_limiter)):
     try:
         await rate_limiter_service.set_client_config(config=config)
@@ -18,7 +18,7 @@ async def create_client_config(config: ClientRateLimitConfig, rate_limiter_servi
     except Exception as e :
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@router.get("/clients", response_model=List[ClientRateLimitConfig])
+@router.get("/clients", response_model=List[ClientRateLimitConfig],status_code=status.HTTP_200_OK)
 async def list_client_configs(rate_limiter_service : RateLimiterService = Depends(get_rate_limiter)):
     try:
         config_list = await rate_limiter_service.list_client_configs()
@@ -26,7 +26,7 @@ async def list_client_configs(rate_limiter_service : RateLimiterService = Depend
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=str(e))
     
-@router.get("/clients/{client_id}", response_model=ClientRateLimitConfig)
+@router.get("/clients/{client_id}", response_model=ClientRateLimitConfig , status_code=status.HTTP_200_OK)
 async def get_client_config(client_id: str,rate_limiter_service : RateLimiterService = Depends(get_rate_limiter)):
     try:
         config = await rate_limiter_service.get_client_config(client_id=client_id)
@@ -36,7 +36,7 @@ async def get_client_config(client_id: str,rate_limiter_service : RateLimiterSer
         
 
 
-@router.delete("/clients/{client_id}", response_model=GatewayResponse)
+@router.delete("/clients/{client_id}", response_model=GatewayResponse , status_code=status.HTTP_200_OK)
 async def delete_client_config(client_id: str,rate_limiter_service : RateLimiterService = Depends(get_rate_limiter)):
     deleted = rate_limiter_service.delete_client_config(client_id=client_id)
     if deleted is False:
