@@ -11,9 +11,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     """
     Middleware that enforces rate limits on all incoming requests.
     """
-    def __init__(self, app, rate_limiter: RateLimiterService, excluded_paths: List[str] = None):
+    def __init__(self, app, excluded_paths: List[str] = None):
         super().__init__(app)
-        self._rate_limiter = rate_limiter  # service object
+        self._rate_limiter : RateLimiterService = app.state.rate_limiter  # service object
         self._excluded_paths = excluded_paths
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
