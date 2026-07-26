@@ -20,6 +20,69 @@ A high-performance API gateway that enforces configurable per-client rate limits
 - 🐳 **Dockerized** — One command to run the full stack
 - 📊 **Standard Headers** — `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`
 
+---
+
+## Architecture Overview
+
+```
+                    ┌──────────────────────────────────────────────┐
+                    │              CLIENT REQUEST                  │
+                    │    (with X-API-Key or IP identification)     │
+                    └──────────────────┬───────────────────────────┘
+                                       │
+                                       ▼
+                    ┌──────────────────────────────────────────────┐
+                    │          RATE LIMIT MIDDLEWARE               │
+                    │    (Module 8: rate_limit_middleware.py)      │
+                    │                                              │
+                    │  1. Extract client ID (Module 6)             │
+                    │  2. Check rate limit (Module 5)              │
+                    │  3. Allow → add headers → forward            │
+                    │     Deny  → return 429                       │
+                    └──────────┬───────────────┬───────────────────┘
+                               │               │
+                          ALLOWED           DENIED
+                               │               │
+                               ▼               ▼
+                    ┌──────────────────┐  ┌──────────────────────┐
+                    │  ROUTE HANDLERS  │  │  429 Too Many        │
+                    │  (Modules 9-11)  │  │  Requests Response   │
+                    │  /health         │  │  (Module 7)          │
+                    │  /admin/*        │  └──────────────────────┘
+                    │  /api/*          │
+                    └──────────────────┘
+                               │
+                    ┌──────────┴───────────────────────────────────┐
+                    │          RATE LIMITER SERVICE                │
+                    │    (Module 5: rate_limiter.py)               │
+                    │                                              │
+                    │  - Per-client config management (CRUD)       │
+                    │  - Delegates to Token Bucket                 │
+                    └──────────────────┬───────────────────────────┘
+                                       │
+                                       ▼
+                    ┌──────────────────────────────────────────────┐
+                    │         TOKEN BUCKET ALGORITHM               │
+                    │    (Module 4: token_bucket.py)    ★ CORE ★  │
+                    │                                              │
+                    │  - Lua script for atomic operations          │
+                    │  - Refill tokens over time                   │
+                    │  - Consume tokens per request                │
+                    └──────────────────┬───────────────────────────┘
+                                       │
+                                       ▼
+                    ┌──────────────────────────────────────────────┐
+                    │               REDIS                          │
+                    │    (Module 3: redis_client.py)               │
+                    │                                              │
+                    │  - Token bucket state (hash per client)      │
+                    │  - Client configs (JSON per client)          │
+                    │  - Shared across all app instances           │
+                    └──────────────────────────────────────────────┘
+```
+
+---
+
 ## Quick Start
 
 ```bash
@@ -52,10 +115,6 @@ python -m app.main
 | `GET` | `/api/resource` | Sample protected endpoint |
 | `POST` | `/api/resource` | Sample protected endpoint |
 | `GET` | `/api/status` | Gateway status |
-
-## Building This Project
-
-📖 **See [PHASES.md](PHASES.md)** for the step-by-step build guide.
 
 ## License
 

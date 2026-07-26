@@ -20,14 +20,7 @@ from app.main import create_app
 
 @pytest.fixture
 def app():
-    """
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │  TASK: Create a fresh FastAPI app for each test.                      │
-    │                                                                        │
-    │  HINT: return create_app()                                             │
-    └─────────────────────────────────────────────────────────────────────────┘
-    """
-    pass  # YOUR CODE HERE
+    return create_app()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
