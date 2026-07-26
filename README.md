@@ -33,10 +33,10 @@ A high-performance API gateway that enforces configurable per-client rate limits
                                        ▼
                     ┌──────────────────────────────────────────────┐
                     │          RATE LIMIT MIDDLEWARE               │
-                    │    (Module 8: rate_limit_middleware.py)      │
+                    │      (rate_limit_middleware.py)              │
                     │                                              │
-                    │  1. Extract client ID (Module 6)             │
-                    │  2. Check rate limit (Module 5)              │
+                    │  1. Extract client ID                        │
+                    │  2. Check rate limit                         │
                     │  3. Allow → add headers → forward            │
                     │     Deny  → return 429                       │
                     └──────────┬───────────────┬───────────────────┘
@@ -46,15 +46,15 @@ A high-performance API gateway that enforces configurable per-client rate limits
                                ▼               ▼
                     ┌──────────────────┐  ┌──────────────────────┐
                     │  ROUTE HANDLERS  │  │  429 Too Many        │
-                    │  (Modules 9-11)  │  │  Requests Response   │
-                    │  /health         │  │  (Module 7)          │
+                    │                  │  │  Requests Response   │
+                    │  /health         │  │                      │
                     │  /admin/*        │  └──────────────────────┘
                     │  /api/*          │
                     └──────────────────┘
                                │
                     ┌──────────┴───────────────────────────────────┐
                     │          RATE LIMITER SERVICE                │
-                    │    (Module 5: rate_limiter.py)               │
+                    │              (rate_limiter.py)               │
                     │                                              │
                     │  - Per-client config management (CRUD)       │
                     │  - Delegates to Token Bucket                 │
@@ -63,7 +63,7 @@ A high-performance API gateway that enforces configurable per-client rate limits
                                        ▼
                     ┌──────────────────────────────────────────────┐
                     │         TOKEN BUCKET ALGORITHM               │
-                    │    (Module 4: token_bucket.py)    ★ CORE ★  │
+                    │           (token_bucket.py)    ★ CORE ★     │
                     │                                              │
                     │  - Lua script for atomic operations          │
                     │  - Refill tokens over time                   │
@@ -73,7 +73,7 @@ A high-performance API gateway that enforces configurable per-client rate limits
                                        ▼
                     ┌──────────────────────────────────────────────┐
                     │               REDIS                          │
-                    │    (Module 3: redis_client.py)               │
+                    │         (redis_client.py)                    │
                     │                                              │
                     │  - Token bucket state (hash per client)      │
                     │  - Client configs (JSON per client)          │
