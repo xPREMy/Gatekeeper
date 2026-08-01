@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     DEFAULT_WINDOW_SECONDS : int = 60
     Tokens_consume_per_request : int = 1
     SERVER_HOST : str
-    SERVER_PORT : str
+    SERVER_PORT : int
     
     model_config=SettingsConfigDict(
         env_file=".env",

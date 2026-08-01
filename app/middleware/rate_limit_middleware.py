@@ -26,9 +26,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         if result.status == RateLimitStatus.DENIED :
             return build_rate_limited_response(result)
 
-        response = await call_next(result)
+        response = await call_next(request)
         header = build_rate_limit_headers(result)
-
+        header["client_id"] = client_id
         for key , value in header.items():
             response.headers[key] = value  
 
